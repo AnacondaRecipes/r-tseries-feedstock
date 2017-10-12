@@ -1,4 +1,4 @@
-{% set version = '0.10-40' %}
+{% set version = '0.10-42' %}
 
 {% set posix = 'm2-' if win else '' %}
 {% set native = 'm2w64-' if win else '' %}
@@ -12,35 +12,53 @@ source:
   url:
     - https://cran.r-project.org/src/contrib/tseries_{{ version }}.tar.gz
     - https://cran.r-project.org/src/contrib/Archive/tseries/tseries_{{ version }}.tar.gz
-  sha256: 6428124cd082fed3375a9c3627008b93ecd886c18ef086dba1a0224126216bd5
+  sha256: 827f79858715c700e8cabd2c27853ba88ad0e05eb043bc94e126b155a75546c4
+
+
+  # patches:
+   # List any patch files here
+   # - fix.patch
 
 build:
+  # If this is a new build for the same version, increment the build number.
   number: 0
-  skip: true  # [win32]
 
+  # This is required to make R link correctly on Linux.
   rpaths:
     - lib/R/lib/
     - lib/
 
+
 requirements:
   build:
     - r-base
+    - {{ compiler('c') }}        # [not win]
+    - {{ compiler('fortran') }}  # [not win]
+    - {{native}}toolchain        # [win]
+    - {{posix}}filesystem        # [win]
+    - {{posix}}make
     - r-quadprog
+    - r-quantmod >=0.4.9
     - r-zoo
-    - posix                # [win]
-    - {{native}}toolchain  # [win]
-    - gcc                  # [not win]
 
   run:
     - r-base
+    - {{native}}gcc-libs         # [win]
     - r-quadprog
+    - r-quantmod >=0.4.9
     - r-zoo
-    - libgcc  # [not win]
 
 test:
   commands:
-    - $R -e "library('tseries')"  # [not win]
+    # You can put additional test commands to be run here.
+    - $R -e "library('tseries')"           # [not win]
     - "\"%R%\" -e \"library('tseries')\""  # [win]
+
+  # You can also put a file called run_test.py, run_test.sh, or run_test.bat
+  # in the recipe that will be run at test time.
+
+  # requires:
+    # Put any additional test requirements here.
 
 about:
   home: https://CRAN.R-project.org/package=tseries
@@ -52,3 +70,25 @@ extra:
   recipe-maintainers:
     - johanneskoester
     - bgruening
+    - mingwandroid
+
+# The original CRAN metadata for this package was:
+
+# Package: tseries
+# Version: 0.10-42
+# Title: Time Series Analysis and Computational Finance
+# Authors@R: c(person("Adrian", "Trapletti", role = "aut", email = "adrian@trapletti.org"), person("Kurt", "Hornik", role = c("aut", "cre"), email = "Kurt.Hornik@R-project.org"), person("Blake", "LeBaron", role = "ctb", comment = "BDS test code"))
+# Description: Time series analysis and computational finance.
+# Depends: R (>= 2.10.0)
+# Imports: graphics, stats, utils, quadprog, zoo, quantmod (>= 0.4.9)
+# License: GPL-2
+# NeedsCompilation: yes
+# Packaged: 2017-06-21 18:26:43 UTC; hornik
+# Author: Adrian Trapletti [aut], Kurt Hornik [aut, cre], Blake LeBaron [ctb] (BDS test code)
+# Maintainer: Kurt Hornik <Kurt.Hornik@R-project.org>
+# Repository: CRAN
+# Date/Publication: 2017-06-22 05:37:54 UTC
+
+# See
+# http://docs.continuum.io/conda/build.html for
+# more information about meta.yaml
