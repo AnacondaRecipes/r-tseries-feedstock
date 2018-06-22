@@ -44,6 +44,7 @@ requirements:
     - r-quadprog
     - r-quantmod >=0.4.9
     - r-zoo
+    - libopenblas                # [osx]
 
 test:
   commands:
